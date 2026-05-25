@@ -1,0 +1,21 @@
+/* TEMA CLARO */
+.light {
+  --bg: #f4f4f4;
+  --text: #000;
+  --sidebar-bg: #9bd6ff;
+  --box-bg: #ddd;
+}
+
+/* TEMA ESCURO */
+.dark {
+  --bg: #1d1d1d;
+  --text: #eee;
+  --sidebar-bg: #2b5876;
+  --box-bg: #333;
+}
+
+body, .light, .dark {
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
+}
