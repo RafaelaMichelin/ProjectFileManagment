@@ -1,8 +1,10 @@
 export default function Documentos() {
   return (
     <section style={styles.page}>
-      <h2>Documentos</h2>
-      <p>Bla Bla bla</p>
+      <h2 style={{ color: "var(--text)" }}>Documentos</h2>
+      <p style={{ color: "var(--text)" }}>
+        Bla bla bla.
+      </p>
     </section>
   );
 }
@@ -11,7 +13,7 @@ const styles = {
   page: {
     padding: "24px",
     borderRadius: "18px",
-    background: "#f3f7ff",
+    background: "var(--box-bg)",
     minHeight: "320px",
   },
 };

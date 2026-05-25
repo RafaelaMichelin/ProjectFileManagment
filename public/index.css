@@ -10,11 +10,13 @@
 .dark {
   --bg: #1d1d1d;
   --text: #eee;
-  --sidebar-bg: #2b5876;
+  --sidebar-bg: #1a3a52;
   --box-bg: #333;
 }
 
-body, .light, .dark {
+body,
+.light,
+.dark {
   background: var(--bg);
   color: var(--text);
   transition: 0.3s;

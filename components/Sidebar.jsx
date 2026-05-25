@@ -59,7 +59,7 @@ const styles = {
     minWidth: "220px",
     width: "100%",
     maxWidth: "260px",
-    background: "#9bd6ff",
+    background: "var(--sidebar-bg)",
     padding: "28px 18px",
     display: "flex",
     flexDirection: "column",

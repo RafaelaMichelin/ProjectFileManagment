@@ -1,7 +1,7 @@
 export default function Dashboard() {
   return (
     <section style={styles.dashboardBox}>
-      <p>Dashboards Gerais</p>
+      <p style={{ color: "var(--text)" }}>Dashboards Gerais</p>
     </section>
   );
 }
@@ -12,7 +12,7 @@ const styles = {
     minHeight: "420px",
     padding: "40px",
     borderRadius: "18px",
-    background: "#d7d7d7",
+    background: "var(--box-bg)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

@@ -37,6 +37,24 @@ function IconLogout() {
   );
 }
 
+function IconHome() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12L12 3l9 9" />
+      <path d="M9 21V12h6v9" />
+    </svg>
+  );
+}
+
 function IconSun() {
   return (
     <svg
@@ -79,7 +97,10 @@ function IconMoon() {
   );
 }
 
-export default function Header({ currentPage = "Início" }) {
+export default function Header({
+  currentPage = "Início",
+  onSelectPage = () => {},
+}) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -88,16 +109,31 @@ export default function Header({ currentPage = "Início" }) {
 
       <div style={styles.iconArea}>
         <button
+          onClick={() => onSelectPage("Início")}
+          style={styles.iconButton}
+          aria-label="Página inicial"
+        >
+          <IconHome />
+        </button>
+        <button
           onClick={toggleTheme}
           style={styles.iconButton}
           aria-label="Alternar tema"
         >
           {theme === "light" ? <IconMoon /> : <IconSun />}
         </button>
-        <button style={styles.iconButton} aria-label="Perfil">
+        <button
+          onClick={() => onSelectPage("Perfil")}
+          style={styles.iconButton}
+          aria-label="Perfil"
+        >
           <IconProfile />
         </button>
-        <button style={styles.iconButton} aria-label="Sair">
+        <button
+          onClick={() => onSelectPage("Cadastro")}
+          style={styles.iconButton}
+          aria-label="Cadastro de usuário"
+        >
           <IconLogout />
         </button>
       </div>
@@ -109,13 +145,14 @@ const styles = {
   header: {
     paddingBottom: 20,
     marginBottom: 20,
-    borderBottom: "1px solid #dcdcdc",
+    borderBottom: "1px solid var(--box-bg)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   },
   title: {
     fontSize: "22px",
+    color: "var(--text)",
   },
   iconArea: {
     display: "flex",
@@ -133,6 +170,6 @@ const styles = {
     background: "transparent",
     border: "1px solid rgba(0,0,0,0.1)",
     borderRadius: "10px",
-    color: "#111111",
+    color: "var(--text)",
   },
 };

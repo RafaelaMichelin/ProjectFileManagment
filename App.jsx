@@ -7,6 +7,8 @@ import Protocolos from "./pages/Protocolos";
 import Relatorios from "./pages/Relatorios";
 import Logs from "./pages/Logs";
 import Usuarios from "./pages/Usuarios";
+import Perfil from "./pages/Perfil";
+import Cadastro from "./pages/Cadastro";
 import { ThemeProvider } from "./context/ThemeContext";
 
 export default function App() {
@@ -19,15 +21,21 @@ export default function App() {
     Relatórios: <Relatorios />,
     Logs: <Logs />,
     Usuários: <Usuarios />,
+    Perfil: <Perfil />,
+    Cadastro: <Cadastro />,
   };
+
+  const hideSidebar = selectedPage === "Perfil" || selectedPage === "Cadastro";
 
   return (
     <ThemeProvider>
       <div style={styles.container}>
-        <Sidebar selectedPage={selectedPage} onSelectPage={setSelectedPage} />
+        {!hideSidebar && (
+          <Sidebar selectedPage={selectedPage} onSelectPage={setSelectedPage} />
+        )}
 
         <main style={styles.main}>
-          <Header currentPage={selectedPage} />
+          <Header currentPage={selectedPage} onSelectPage={setSelectedPage} />
           {pages[selectedPage] || <Dashboard />}
         </main>
       </div>
@@ -41,13 +49,13 @@ const styles = {
     flexWrap: "wrap",
     minHeight: "100vh",
     width: "100%",
-    background: "#eaf2fb",
+    background: "var(--bg)",
   },
   main: {
     flex: "1 1 0",
     minWidth: 0,
     padding: "28px",
-    background: "#ffffff",
+    background: "var(--bg)",
     boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
   },
 };
