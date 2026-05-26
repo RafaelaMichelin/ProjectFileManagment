@@ -1,8 +1,25 @@
 export default function Cadastro() {
   return (
-    <section>
-      <h2>Cadastro</h2>
-      <p></p>
+    <section style={styles.page}>
+      <form style={styles.form}>
+        <label> 
+          Nome Completo:
+          <input type="text" name="name" />
+        </label>
+        <label>
+          Email:
+          <input type="email" name="email" />
+        </label>
+        <label> 
+          Senha:
+          <input type="password" name="password" />
+        </label>
+        <label>
+          Confirmar Senha:
+          <input type="password" name="confirmPassword" />
+        </label>
+        <button type="submit">Cadastrar</button>
+        </form>
     </section>
   );
 }
@@ -15,4 +32,12 @@ const styles = {
     minHeight: "320px",
     color: "var(--text)",
   },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "16px",
+    borderRadius: "8px",
+  },
+
 };
