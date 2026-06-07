@@ -100,8 +100,16 @@ function IconMoon() {
 export default function Header({
   currentPage = "Início",
   onSelectPage = () => {},
+  onLogout = () => {},
 }) {
   const { theme, toggleTheme } = useTheme();
+
+  const handleLogout = () => {
+    const confirmed = window.confirm("Deseja sair?");
+    if (confirmed) {
+      onLogout();
+    }
+  };
 
   return (
     <header style={styles.header}>
@@ -130,9 +138,9 @@ export default function Header({
           <IconProfile />
         </button>
         <button
-          onClick={() => onSelectPage("Cadastro")}
+          onClick={handleLogout}
           style={styles.iconButton}
-          aria-label="Cadastro de usuário"
+          aria-label="Sair"
         >
           <IconLogout />
         </button>

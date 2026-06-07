@@ -14,7 +14,7 @@ function Root() {
 	return (
 		<>
 			{view === "app" ? (
-				<App />
+				<App onLogout={() => setView("login")} />
 			) : view === "register" ? (
 				<Cadastro onRegistered={() => setView("login")} onCancel={() => setView("login")} />
 			) : (

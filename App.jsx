@@ -8,10 +8,9 @@ import Relatorios from "./pages/Relatorios";
 import Logs from "./pages/Logs";
 import Usuarios from "./pages/Usuarios";
 import Perfil from "./pages/Perfil";
-import Cadastro from "./pages/Cadastro";
 import { ThemeProvider } from "./context/ThemeContext";
 
-export default function App() {
+export default function App({ onLogout }) {
   const [selectedPage, setSelectedPage] = useState("Início");
 
   const pages = {
@@ -22,10 +21,9 @@ export default function App() {
     Logs: <Logs />,
     Usuários: <Usuarios />,
     Perfil: <Perfil />,
-    Cadastro: <Cadastro />,
   };
 
-  const hideSidebar = selectedPage === "Perfil" || selectedPage === "Cadastro";
+  const hideSidebar = selectedPage === "Perfil";
 
   return (
     <ThemeProvider>
@@ -35,7 +33,11 @@ export default function App() {
         )}
 
         <main style={styles.main}>
-          <Header currentPage={selectedPage} onSelectPage={setSelectedPage} />
+          <Header
+            currentPage={selectedPage}
+            onSelectPage={setSelectedPage}
+            onLogout={onLogout}
+          />
           {pages[selectedPage] || <Dashboard />}
         </main>
       </div>
