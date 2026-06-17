@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import multer from "multer";
 import pool from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import usuariosRoutes from "./routes/usuarios.js";
 import protocolosRoutes from "./routes/protocolos.js";
 import documentosRoutes from "./routes/documentos.js";
 import logsRoutes from "./routes/logs.js";
+import dashboardRoutes from "./routes/dashboard.js";
+import relatoriosRoutes from "./routes/relatorios.js";
 
 dotenv.config();
 
@@ -31,6 +34,20 @@ app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/protocolos", protocolosRoutes);
 app.use("/api/documentos", documentosRoutes);
 app.use("/api/logs", logsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/relatorios", relatoriosRoutes);
+
+app.use((err, _req, res, _next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ error: "Arquivo muito grande. Máximo: 10 MB." });
+    }
+    return res.status(400).json({ error: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ error: err.message });
+  }
+});
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Rota não encontrada." });
