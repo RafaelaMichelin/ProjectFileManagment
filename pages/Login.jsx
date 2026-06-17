@@ -1,10 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "../services/api";
+
+const STORAGE_KEY = "sced_login_lembrar";
+
+function carregarLoginSalvo() {
+  try {
+    const salvo = localStorage.getItem(STORAGE_KEY);
+    if (!salvo) return null;
+    return JSON.parse(salvo);
+  } catch {
+    return null;
+  }
+}
 
 export default function Login({ onLoginSuccess, onNavigate }) {
   const [form, setForm] = useState({ email: "", senha: "" });
+  const [lembrar, setLembrar] = useState(false);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  useEffect(() => {
+    const salvo = carregarLoginSalvo();
+    if (salvo) {
+      setForm({
+        email: salvo.email || "",
+        senha: salvo.senha || "",
+      });
+      setLembrar(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,6 +41,16 @@ export default function Login({ onLoginSuccess, onNavigate }) {
 
     try {
       const data = await api.login(form.email, form.senha);
+
+      if (lembrar) {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ email: form.email, senha: form.senha })
+        );
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+
       if (onLoginSuccess) onLoginSuccess(data.usuario);
     } catch (error) {
       setErro(error.message);
@@ -54,7 +88,12 @@ export default function Login({ onLoginSuccess, onNavigate }) {
           {erro && <p style={styles.erro}>{erro}</p>}
 
           <label style={styles.checkboxRow}>
-            <input type="checkbox" style={styles.checkbox} />
+            <input
+              type="checkbox"
+              style={styles.checkbox}
+              checked={lembrar}
+              onChange={(e) => setLembrar(e.target.checked)}
+            />
             <span>Lembrar de mim</span>
           </label>
 

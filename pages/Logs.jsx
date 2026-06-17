@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -7,94 +7,67 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { pageStyles as s } from "../components/pageStyles";
+import { api } from "../services/api";
+import { classificarAcao, formatarData, formatarHora } from "../utils/date";
 
 export default function Logs() {
+  const [logs, setLogs] = useState([]);
+  const [usuariosLista, setUsuariosLista] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
   const [acaoFiltro, setAcaoFiltro] = useState("Todas");
   const [usuarioFiltro, setUsuarioFiltro] = useState("Todos");
 
-  const logsSistema = [
-    {
-      data: "10/06/2026",
-      hora: "08:15",
-      usuario: "Maria Souza",
-      acao: "Login",
-      descricao: "Usuário acessou o sistema.",
-    },
-    {
-      data: "10/06/2026",
-      hora: "09:20",
-      usuario: "João Lima",
-      acao: "Cadastro",
-      descricao: "Novo documento cadastrado.",
-    },
-    {
-      data: "11/06/2026",
-      hora: "10:05",
-      usuario: "Ana Costa",
-      acao: "Alteração",
-      descricao: "Status do protocolo alterado para Em análise.",
-    },
-    {
-      data: "11/06/2026",
-      hora: "11:30",
-      usuario: "Carlos Silva",
-      acao: "Exclusão",
-      descricao: "Registro removido do sistema.",
-    },
-    {
-      data: "12/06/2026",
-      hora: "14:10",
-      usuario: "Rafaela Michelin",
-      acao: "Cadastro",
-      descricao: "Novo protocolo registrado.",
-    },
-    {
-      data: "12/06/2026",
-      hora: "15:45",
-      usuario: "Jhonatan",
-      acao: "Alteração",
-      descricao: "Dados de documento foram atualizados.",
-    },
-    {
-      data: "13/06/2026",
-      hora: "08:50",
-      usuario: "Maria Souza",
-      acao: "Login",
-      descricao: "Usuário acessou o sistema.",
-    },
-    {
-      data: "13/06/2026",
-      hora: "16:25",
-      usuario: "João Lima",
-      acao: "Cadastro",
-      descricao: "Documento CPF enviado ao sistema.",
-    },
-  ];
+  const carregar = useCallback(async () => {
+    setCarregando(true);
+    setErro("");
+    try {
+      const [lista, stats] = await Promise.all([api.getLogs(), api.getLogsStats()]);
+      setLogs(
+        lista.map((log) => ({
+          ...log,
+          acaoTipo: classificarAcao(log.acao),
+          data: formatarData(log.data_log),
+          hora: formatarHora(log.data_log),
+        }))
+      );
+      setUsuariosLista(stats.usuarios || []);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
 
   const logsFiltrados = useMemo(() => {
-    return logsSistema.filter((log) => {
-      const acaoOk = acaoFiltro === "Todas" || log.acao === acaoFiltro;
+    return logs.filter((log) => {
+      const acaoOk = acaoFiltro === "Todas" || log.acaoTipo === acaoFiltro;
       const usuarioOk =
-        usuarioFiltro === "Todos" || log.usuario === usuarioFiltro;
+        usuarioFiltro === "Todos" || log.nome_usuario === usuarioFiltro;
       return acaoOk && usuarioOk;
     });
-  }, [acaoFiltro, usuarioFiltro]);
+  }, [logs, acaoFiltro, usuarioFiltro]);
 
   const dadosGrafico = useMemo(() => {
-    const datas = ["10/06", "11/06", "12/06", "13/06"];
-
-    return datas.map((dia) => ({
-      dia,
-      eventos: logsFiltrados.filter((log) => log.data.startsWith(dia)).length,
-    }));
+    const contagem = {};
+    logsFiltrados.forEach((log) => {
+      contagem[log.data] = (contagem[log.data] || 0) + 1;
+    });
+    return Object.entries(contagem)
+      .map(([dia, eventos]) => ({ dia, eventos }))
+      .slice(0, 7)
+      .reverse();
   }, [logsFiltrados]);
 
   const totalEventos = logsFiltrados.length;
-  const totalLogins = logsFiltrados.filter(
-    (log) => log.acao === "Login",
-  ).length;
+  const totalLogins = logsFiltrados.filter((log) => log.acaoTipo === "Login").length;
   const totalAlteracoes = logsFiltrados.filter(
-    (log) => log.acao === "Alteração",
+    (log) => log.acaoTipo === "Alteração"
   ).length;
 
   const getAcaoStyle = (acao) => {
@@ -103,55 +76,57 @@ export default function Logs() {
       Cadastro: { color: "#16a34a", fontWeight: "600" },
       Alteração: { color: "#ca8a04", fontWeight: "600" },
       Exclusão: { color: "#dc2626", fontWeight: "600" },
+      Outros: { color: "var(--text)", fontWeight: "600" },
     };
-
     return estilos[acao] || {};
   };
 
   return (
-    <section style={styles.page}>
-      <div style={styles.topo}>
+    <section style={s.page}>
+      <div style={s.topo}>
         <div>
-          <h2 style={styles.titulo}>Logs do Sistema</h2>
-          <p style={styles.subtitulo}>
+          <h2 style={s.titulo}>Logs do Sistema</h2>
+          <p style={s.subtitulo}>
             Acompanhamento das ações realizadas pelos usuários no sistema.
           </p>
         </div>
       </div>
 
       <div style={styles.filtrosArea}>
-        <div style={styles.filtroGrupo}>
-          <label style={styles.label}>Tipo de ação</label>
+        <div style={s.filtroGrupo}>
+          <label style={s.label}>Tipo de ação</label>
           <select
             value={acaoFiltro}
             onChange={(e) => setAcaoFiltro(e.target.value)}
-            style={styles.select}
+            style={s.select}
           >
             <option>Todas</option>
             <option>Login</option>
             <option>Cadastro</option>
             <option>Alteração</option>
             <option>Exclusão</option>
+            <option>Outros</option>
           </select>
         </div>
 
-        <div style={styles.filtroGrupo}>
-          <label style={styles.label}>Usuário</label>
+        <div style={s.filtroGrupo}>
+          <label style={s.label}>Usuário</label>
           <select
             value={usuarioFiltro}
             onChange={(e) => setUsuarioFiltro(e.target.value)}
-            style={styles.select}
+            style={s.select}
           >
             <option>Todos</option>
-            <option>Maria Souza</option>
-            <option>João Lima</option>
-            <option>Ana Costa</option>
-            <option>Carlos Silva</option>
-            <option>Rafaela Michelin</option>
-            <option>Jhonatan</option>
+            {usuariosLista.map((nome) => (
+              <option key={nome} value={nome}>
+                {nome}
+              </option>
+            ))}
           </select>
         </div>
       </div>
+
+      {erro && <p style={s.erro}>{erro}</p>}
 
       <div style={styles.cardsArea}>
         <div style={{ ...styles.card, borderTop: "5px solid #93c5fd" }}>
@@ -159,13 +134,11 @@ export default function Logs() {
           <h3 style={styles.cardValor}>{totalEventos}</h3>
           <span style={styles.cardDetalhe}>Eventos encontrados</span>
         </div>
-
         <div style={{ ...styles.card, borderTop: "5px solid #bfdbfe" }}>
           <p style={styles.cardTitulo}>Logins</p>
           <h3 style={styles.cardValor}>{totalLogins}</h3>
           <span style={styles.cardDetalhe}>Acessos ao sistema</span>
         </div>
-
         <div style={{ ...styles.card, borderTop: "5px solid #fde68a" }}>
           <p style={styles.cardTitulo}>Alterações</p>
           <h3 style={styles.cardValor}>{totalAlteracoes}</h3>
@@ -175,81 +148,76 @@ export default function Logs() {
 
       <div style={styles.graficoBox}>
         <h3 style={styles.graficoTitulo}>Eventos Registrados por Dia</h3>
-
-        <ResponsiveContainer width="100%" height={230}>
-          <BarChart
-            data={dadosGrafico}
-            margin={{
-              top: 10,
-              right: 10,
-              left: -20,
-              bottom: 0,
-            }}
-          >
-            <XAxis dataKey="dia" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar
-              dataKey="eventos"
-              fill="#93c5fd"
-              radius={[8, 8, 0, 0]}
-              barSize={70}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        {carregando ? (
+          <p style={s.carregando}>Carregando...</p>
+        ) : dadosGrafico.length === 0 ? (
+          <p style={s.vazio}>Sem dados para exibir.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={230}>
+            <BarChart data={dadosGrafico}>
+              <XAxis dataKey="dia" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar
+                dataKey="eventos"
+                fill="#93c5fd"
+                radius={[8, 8, 0, 0]}
+                barSize={70}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div style={styles.resumoFiltros}>
         <p style={styles.resumoTitulo}>Filtros ativos</p>
-
         <div style={styles.resumoLinha}>
           <span>
             <strong>Ação:</strong> {acaoFiltro}
           </span>
-
           <span>
             <strong>Usuário:</strong> {usuarioFiltro}
           </span>
         </div>
-
         <p style={styles.resumoTexto}>
           Exibindo <strong>{totalEventos}</strong> evento(s) registrado(s).
         </p>
       </div>
 
-      <div style={styles.tabelaBox}>
+      <div style={s.tabelaBox}>
         <h3 style={styles.graficoTitulo}>Histórico de Atividades</h3>
-
-        <table style={styles.tabela}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Data</th>
-              <th style={styles.th}>Hora</th>
-              <th style={styles.th}>Usuário</th>
-              <th style={styles.th}>Ação</th>
-              <th style={styles.th}>Descrição</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {logsFiltrados.map((log, index) => (
-              <tr key={index}>
-                <td style={styles.td}>{log.data}</td>
-                <td style={styles.td}>{log.hora}</td>
-                <td style={styles.td}>{log.usuario}</td>
-                <td style={{ ...styles.td, ...getAcaoStyle(log.acao) }}>
-                  {log.acao}
-                </td>
-                <td style={styles.td}>{log.descricao}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {logsFiltrados.length === 0 && (
-          <p style={styles.vazio}>
-            Nenhum log encontrado para os filtros selecionados.
-          </p>
+        {carregando ? (
+          <p style={s.carregando}>Carregando logs...</p>
+        ) : (
+          <>
+            <table style={s.tabela}>
+              <thead>
+                <tr>
+                  <th style={s.th}>Data</th>
+                  <th style={s.th}>Hora</th>
+                  <th style={s.th}>Usuário</th>
+                  <th style={s.th}>Ação</th>
+                  <th style={s.th}>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logsFiltrados.map((log) => (
+                  <tr key={log.id_log}>
+                    <td style={s.td}>{log.data}</td>
+                    <td style={s.td}>{log.hora}</td>
+                    <td style={s.td}>{log.nome_usuario || "-"}</td>
+                    <td style={{ ...s.td, ...getAcaoStyle(log.acaoTipo) }}>
+                      {log.acaoTipo}
+                    </td>
+                    <td style={s.td}>{log.acao}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {logsFiltrados.length === 0 && (
+              <p style={s.vazio}>Nenhum log encontrado para os filtros selecionados.</p>
+            )}
+          </>
         )}
       </div>
     </section>
@@ -257,89 +225,27 @@ export default function Logs() {
 }
 
 const styles = {
-  page: {
-    padding: "28px",
-    borderRadius: "18px",
-    background: "var(--box-bg)",
-    minHeight: "320px",
-  },
-
-  topo: {
-    marginBottom: "20px",
-  },
-
-  titulo: {
-    color: "var(--text)",
-    margin: 0,
-    fontSize: "28px",
-  },
-
-  subtitulo: {
-    color: "var(--text)",
-    opacity: 0.7,
-    marginTop: "8px",
-    marginBottom: 0,
-  },
-
   filtrosArea: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "16px",
     marginBottom: "22px",
   },
-
-  filtroGrupo: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-
-  label: {
-    color: "var(--text)",
-    fontSize: "14px",
-    opacity: 0.8,
-  },
-
-  select: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: "1px solid #cbd5e1",
-    background: "var(--bg)",
-    color: "var(--text)",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-
   cardsArea: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "16px",
     marginBottom: "22px",
   },
-
   card: {
     background: "var(--bg)",
     borderRadius: "14px",
     padding: "16px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
   },
-
-  cardTitulo: {
-    margin: 0,
-    fontSize: "15px",
-    opacity: 0.8,
-  },
-
-  cardValor: {
-    margin: "10px 0",
-    fontSize: "30px",
-  },
-
-  cardDetalhe: {
-    fontSize: "13px",
-    opacity: 0.7,
-  },
-
+  cardTitulo: { margin: 0, fontSize: "15px", opacity: 0.8, color: "var(--text)" },
+  cardValor: { margin: "10px 0", fontSize: "30px", color: "var(--text)" },
+  cardDetalhe: { fontSize: "13px", opacity: 0.7, color: "var(--text)" },
   graficoBox: {
     background: "var(--bg)",
     borderRadius: "14px",
@@ -347,13 +253,7 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
     marginBottom: "18px",
   },
-
-  graficoTitulo: {
-    marginTop: 0,
-    marginBottom: "16px",
-    color: "var(--text)",
-  },
-
+  graficoTitulo: { marginTop: 0, marginBottom: "16px", color: "var(--text)" },
   resumoFiltros: {
     background: "var(--bg)",
     color: "var(--text)",
@@ -364,51 +264,7 @@ const styles = {
     opacity: 0.9,
     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
   },
-
-  resumoTitulo: {
-    margin: "0 0 8px 0",
-    fontWeight: "700",
-  },
-
-  resumoLinha: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "18px",
-    marginBottom: "8px",
-  },
-
-  resumoTexto: {
-    margin: 0,
-  },
-
-  tabelaBox: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "20px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    overflowX: "auto",
-  },
-
-  tabela: {
-    width: "100%",
-    borderCollapse: "collapse",
-    color: "var(--text)",
-  },
-
-  th: {
-    textAlign: "left",
-    padding: "12px",
-    borderBottom: "1px solid #ccc",
-  },
-
-  td: {
-    padding: "12px",
-    borderBottom: "1px solid rgba(180,180,180,0.3)",
-  },
-
-  vazio: {
-    color: "var(--text)",
-    opacity: 0.7,
-    marginTop: "16px",
-  },
+  resumoTitulo: { margin: "0 0 8px 0", fontWeight: "700" },
+  resumoLinha: { display: "flex", flexWrap: "wrap", gap: "18px", marginBottom: "8px" },
+  resumoTexto: { margin: 0 },
 };
