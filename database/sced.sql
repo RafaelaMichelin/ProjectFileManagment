@@ -79,6 +79,7 @@ CREATE TABLE tipos_documento (
 CREATE TABLE documentos (
     id_documento INT AUTO_INCREMENT PRIMARY KEY,
     nome_arquivo VARCHAR(255) NOT NULL,
+    caminho_arquivo VARCHAR(500),
 
     tipo_arquivo ENUM('pdf', 'jpg', 'png') NOT NULL,
 
@@ -106,6 +107,7 @@ CREATE TABLE historico_movimentacao (
 
     status_anterior VARCHAR(50),
     status_novo VARCHAR(50),
+    descricao TEXT,
 
     data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
