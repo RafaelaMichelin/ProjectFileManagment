@@ -1,9 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
+import { api } from "../services/api";
 
 export default function Login({ onLoginSuccess, onNavigate }) {
-  const handleSubmit = (e) => {
+  const [form, setForm] = useState({ email: "", senha: "" });
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onLoginSuccess) onLoginSuccess();
+    setErro("");
+    setCarregando(true);
+
+    try {
+      const data = await api.login(form.email, form.senha);
+      if (onLoginSuccess) onLoginSuccess(data.usuario);
+    } catch (error) {
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
@@ -16,17 +35,23 @@ export default function Login({ onLoginSuccess, onNavigate }) {
             type="email"
             name="email"
             placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
             required
             style={styles.input}
           />
 
           <input
             type="password"
-            name="password"
+            name="senha"
             placeholder="Senha"
+            value={form.senha}
+            onChange={handleChange}
             required
             style={styles.input}
           />
+
+          {erro && <p style={styles.erro}>{erro}</p>}
 
           <label style={styles.checkboxRow}>
             <input type="checkbox" style={styles.checkbox} />
@@ -41,8 +66,8 @@ export default function Login({ onLoginSuccess, onNavigate }) {
             Esqueci minha senha
           </button>
 
-          <button type="submit" style={styles.primary}>
-            ENTRAR
+          <button type="submit" style={styles.primary} disabled={carregando}>
+            {carregando ? "ENTRANDO..." : "ENTRAR"}
           </button>
 
           <button
@@ -102,6 +127,12 @@ const styles = {
     fontFamily: "Inter, sans-serif",
     fontSize: 14,
     boxSizing: "border-box",
+  },
+  erro: {
+    margin: 0,
+    color: "#c0392b",
+    fontSize: 12,
+    textAlign: "center",
   },
   checkboxRow: {
     display: "flex",

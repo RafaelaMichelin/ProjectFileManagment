@@ -1,43 +1,115 @@
+import { useState } from "react";
+import { api } from "../services/api";
+
 export default function Cadastro({ onRegistered, onCancel }) {
-  const handleSubmit = (e) => {
+  const [form, setForm] = useState({
+    nome_completo: "",
+    email: "",
+    senha: "",
+    confirmar_senha: "",
+  });
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aqui você integraria com a API de cadastro.
-    if (onRegistered) onRegistered();
+    setErro("");
+    setSucesso("");
+    setCarregando(true);
+
+    try {
+      await api.register(form);
+      setSucesso("Cadastro realizado! Redirecionando para o login...");
+      setTimeout(() => {
+        if (onRegistered) onRegistered();
+      }, 1200);
+    } catch (error) {
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
     <section style={styles.container}>
       <div style={styles.box}>
         <h2 style={styles.title}>File Managment</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <label>
-          
-          <input placeholder="Nome Completo" style={styles.input} type="text" name="name" />
-        </label>
-        <label>
-          
-          <input  placeholder="Email" style={styles.input} type="email" name="email" />
-        </label>
-        <label>
-          <input placeholder="Senha" style={styles.input} type="password" name="password" />
-        </label>
-        <label>
-          <input  placeholder="Confirmar Senha"style={styles.input} type="password" name="confirmPassword" />
-        </label>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button type="submit" style={styles.primary}>
-            Cadastrar
-          </button>
-          <button  style={styles.secundary} type="button" onClick={() => onCancel && onCancel()}>Voltar</button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <label>
+            <input
+              placeholder="Nome Completo"
+              style={styles.input}
+              type="text"
+              name="nome_completo"
+              value={form.nome_completo}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <label>
+            <input
+              placeholder="Email"
+              style={styles.input}
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <label>
+            <input
+              placeholder="Senha"
+              style={styles.input}
+              type="password"
+              name="senha"
+              value={form.senha}
+              onChange={handleChange}
+              required
+              minLength={6}
+            />
+          </label>
+          <label>
+            <input
+              placeholder="Confirmar Senha"
+              style={styles.input}
+              type="password"
+              name="confirmar_senha"
+              value={form.confirmar_senha}
+              onChange={handleChange}
+              required
+              minLength={6}
+            />
+          </label>
+
+          {erro && <p style={styles.erro}>{erro}</p>}
+          {sucesso && <p style={styles.sucesso}>{sucesso}</p>}
+
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button type="submit" style={styles.primary} disabled={carregando}>
+              {carregando ? "Salvando..." : "Cadastrar"}
+            </button>
+            <button
+              style={styles.secundary}
+              type="button"
+              onClick={() => onCancel && onCancel()}
+            >
+              Voltar
+            </button>
+          </div>
+        </form>
       </div>
     </section>
   );
 }
 
 const styles = {
- container: {
+  container: {
     minHeight: "100vh",
     display: "flex",
     alignItems: "center",
@@ -64,7 +136,7 @@ const styles = {
     fontSize: "21px",
     textAlign: "center",
   },
-    form: {
+  form: {
     width: "100%",
     display: "flex",
     flexDirection: "column",
@@ -81,6 +153,18 @@ const styles = {
     fontSize: 14,
     boxSizing: "border-box",
   },
+  erro: {
+    margin: 0,
+    color: "#c0392b",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  sucesso: {
+    margin: 0,
+    color: "#27ae60",
+    fontSize: 12,
+    textAlign: "center",
+  },
   primary: {
     marginTop: 10,
     width: "100%",
@@ -93,7 +177,7 @@ const styles = {
     letterSpacing: 0.5,
     cursor: "pointer",
     boxShadow: "0 4px 10px rgba(127,193,245,0.35)",
-  }, 
+  },
   secundary: {
     marginTop: 10,
     width: "100%",
@@ -107,5 +191,4 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 4px 10px rgba(127,193,245,0.35)",
   },
-
 };

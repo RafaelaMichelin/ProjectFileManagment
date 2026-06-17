@@ -7,14 +7,23 @@ import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 
 function Root() {
-	const [view, setView] = useState("login"); // 'login' | 'register' | 'app'
+	const [view, setView] = useState("login");
+	const [usuario, setUsuario] = useState(null);
 
-	const handleLoginSuccess = () => setView("app");
+	const handleLoginSuccess = (dadosUsuario) => {
+		setUsuario(dadosUsuario);
+		setView("app");
+	};
+
+	const handleLogout = () => {
+		setUsuario(null);
+		setView("login");
+	};
 
 	return (
 		<>
 			{view === "app" ? (
-				<App onLogout={() => setView("login")} />
+				<App usuario={usuario} onLogout={handleLogout} />
 			) : view === "register" ? (
 				<Cadastro onRegistered={() => setView("login")} onCancel={() => setView("login")} />
 			) : (

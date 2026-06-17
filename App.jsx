@@ -10,7 +10,7 @@ import Usuarios from "./pages/Usuarios";
 import Perfil from "./pages/Perfil";
 import { ThemeProvider } from "./context/ThemeContext";
 
-export default function App({ onLogout }) {
+export default function App({ usuario, onLogout }) {
   const [selectedPage, setSelectedPage] = useState("Início");
 
   const pages = {
@@ -35,6 +35,7 @@ export default function App({ onLogout }) {
         <main style={styles.main}>
           <Header
             currentPage={selectedPage}
+            usuario={usuario}
             onSelectPage={setSelectedPage}
             onLogout={onLogout}
           />
