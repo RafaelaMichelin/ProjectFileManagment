@@ -17,15 +17,10 @@ function IconHome() {
   );
 }
 
-export default function Sidebar({ selectedPage, onSelectPage }) {
-  const menuItems = [
-    "Início",
-    "Documentos",
-    "Protocolos",
-    "Relatórios",
-    "Usuários",
-    "Logs",
-  ];
+import { getMenuItems } from "../utils/permissions";
+
+export default function Sidebar({ selectedPage, onSelectPage, usuario }) {
+  const menuItems = getMenuItems(usuario?.tipo_usuario);
 
   return (
     <aside style={styles.sidebar}>

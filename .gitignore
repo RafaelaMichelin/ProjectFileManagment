@@ -13,6 +13,7 @@ dist
 .env
 server/.env
 dist-ssr
+server/uploads
 *.local
 
 # Editor directories and files

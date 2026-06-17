@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
+import { podeAcessarPagina } from "./utils/permissions";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import Documentos from "./pages/Documentos";
@@ -10,27 +11,33 @@ import Usuarios from "./pages/Usuarios";
 import Perfil from "./pages/Perfil";
 import { ThemeProvider } from "./context/ThemeContext";
 
-export default function App({ usuario, onLogout }) {
+export default function App({ usuario, onLogout, onUsuarioUpdate }) {
   const [selectedPage, setSelectedPage] = useState("Início");
+
+  useEffect(() => {
+    if (!podeAcessarPagina(usuario?.tipo_usuario, selectedPage)) {
+      setSelectedPage("Início");
+    }
+  }, [usuario?.tipo_usuario, selectedPage]);
 
   const pages = {
     Início: <Dashboard />,
-    Documentos: <Documentos />,
-    Protocolos: <Protocolos />,
+    Documentos: <Documentos usuario={usuario} />,
+    Protocolos: <Protocolos usuario={usuario} />,
     Relatórios: <Relatorios />,
     Logs: <Logs />,
-    Usuários: <Usuarios />,
-    Perfil: <Perfil />,
+    Usuários: <Usuarios usuario={usuario} />,
+    Perfil: <Perfil usuario={usuario} onUsuarioUpdate={onUsuarioUpdate} />,
   };
-
-  const hideSidebar = selectedPage === "Perfil";
 
   return (
     <ThemeProvider>
       <div style={styles.container}>
-        {!hideSidebar && (
-          <Sidebar selectedPage={selectedPage} onSelectPage={setSelectedPage} />
-        )}
+        <Sidebar
+          selectedPage={selectedPage}
+          onSelectPage={setSelectedPage}
+          usuario={usuario}
+        />
 
         <main style={styles.main}>
           <Header

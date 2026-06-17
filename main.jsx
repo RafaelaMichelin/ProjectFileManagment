@@ -20,10 +20,18 @@ function Root() {
 		setView("login");
 	};
 
+	const handleUsuarioUpdate = (dadosAtualizados) => {
+		setUsuario((prev) => (prev ? { ...prev, ...dadosAtualizados } : prev));
+	};
+
 	return (
 		<>
 			{view === "app" ? (
-				<App usuario={usuario} onLogout={handleLogout} />
+				<App
+					usuario={usuario}
+					onLogout={handleLogout}
+					onUsuarioUpdate={handleUsuarioUpdate}
+				/>
 			) : view === "register" ? (
 				<Cadastro onRegistered={() => setView("login")} onCancel={() => setView("login")} />
 			) : (

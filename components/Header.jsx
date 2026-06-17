@@ -37,24 +37,6 @@ function IconLogout() {
   );
 }
 
-function IconHome() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="22"
-      height="22"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 12L12 3l9 9" />
-      <path d="M9 21V12h6v9" />
-    </svg>
-  );
-}
-
 function IconSun() {
   return (
     <svg
@@ -116,13 +98,6 @@ export default function Header({
       <h1 style={styles.title}>{currentPage}</h1>
 
       <div style={styles.iconArea}>
-        <button
-          onClick={() => onSelectPage("Início")}
-          style={styles.iconButton}
-          aria-label="Página inicial"
-        >
-          <IconHome />
-        </button>
         <button
           onClick={toggleTheme}
           style={styles.iconButton}
