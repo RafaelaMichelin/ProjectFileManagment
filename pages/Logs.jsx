@@ -10,6 +10,7 @@ import {
 import { pageStyles as s } from "../components/pageStyles";
 import { api } from "../services/api";
 import { classificarAcao, formatarData, formatarHora } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
 export default function Logs() {
   const [logs, setLogs] = useState([]);
@@ -18,6 +19,7 @@ export default function Logs() {
   const [erro, setErro] = useState("");
   const [acaoFiltro, setAcaoFiltro] = useState("Todas");
   const [usuarioFiltro, setUsuarioFiltro] = useState("Todos");
+  const [paginaAtual, setPaginaAtual] = useState(1);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -52,6 +54,14 @@ export default function Logs() {
       return acaoOk && usuarioOk;
     });
   }, [logs, acaoFiltro, usuarioFiltro]);
+
+  useEffect(() => {
+    setPaginaAtual(1);
+  }, [acaoFiltro, usuarioFiltro]);
+
+  const totalPaginas = Math.max(1, Math.ceil(logsFiltrados.length / TABLE_LIMIT));
+  const inicioPagina = (paginaAtual - 1) * TABLE_LIMIT;
+  const logsPaginados = logsFiltrados.slice(inicioPagina, inicioPagina + TABLE_LIMIT);
 
   const dadosGrafico = useMemo(() => {
     const contagem = {};
@@ -201,7 +211,7 @@ export default function Logs() {
                 </tr>
               </thead>
               <tbody>
-                {logsFiltrados.map((log) => (
+                {logsPaginados.map((log) => (
                   <tr key={log.id_log}>
                     <td style={s.td}>{log.data}</td>
                     <td style={s.td}>{log.hora}</td>
@@ -216,6 +226,36 @@ export default function Logs() {
             </table>
             {logsFiltrados.length === 0 && (
               <p style={s.vazio}>Nenhum log encontrado para os filtros selecionados.</p>
+            )}
+            {logsFiltrados.length > 0 && (
+              <div style={styles.paginacao}>
+                <span style={styles.paginacaoTexto}>
+                  Mostrando {inicioPagina + 1} a{" "}
+                  {Math.min(inicioPagina + TABLE_LIMIT, logsFiltrados.length)} de{" "}
+                  {logsFiltrados.length} registros
+                </span>
+                <div style={styles.paginacaoAcoes}>
+                  <button
+                    type="button"
+                    style={styles.paginacaoBotao}
+                    disabled={paginaAtual === 1}
+                    onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
+                  >
+                    Anterior
+                  </button>
+                  <span style={styles.paginacaoNumero}>
+                    {paginaAtual} / {totalPaginas}
+                  </span>
+                  <button
+                    type="button"
+                    style={styles.paginacaoBotao}
+                    disabled={paginaAtual === totalPaginas}
+                    onClick={() => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))}
+                  >
+                    Proxima
+                  </button>
+                </div>
+              </div>
             )}
           </>
         )}
@@ -238,33 +278,71 @@ const styles = {
     marginBottom: "22px",
   },
   card: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "16px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "18px",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
   },
   cardTitulo: { margin: 0, fontSize: "15px", opacity: 0.8, color: "var(--text)" },
   cardValor: { margin: "10px 0", fontSize: "30px", color: "var(--text)" },
   cardDetalhe: { fontSize: "13px", opacity: 0.7, color: "var(--text)" },
   graficoBox: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "18px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "20px",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
     marginBottom: "18px",
   },
   graficoTitulo: { marginTop: 0, marginBottom: "16px", color: "var(--text)" },
   resumoFiltros: {
-    background: "var(--bg)",
+    background: "var(--box-bg)",
     color: "var(--text)",
     borderRadius: "12px",
     padding: "14px 16px",
     marginBottom: "18px",
     fontSize: "14px",
     opacity: 0.9,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
   },
   resumoTitulo: { margin: "0 0 8px 0", fontWeight: "700" },
   resumoLinha: { display: "flex", flexWrap: "wrap", gap: "18px", marginBottom: "8px" },
   resumoTexto: { margin: 0 },
+  paginacao: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "12px",
+    paddingTop: "14px",
+    marginTop: "8px",
+    borderTop: "1px solid var(--line)",
+    flexWrap: "wrap",
+  },
+  paginacaoTexto: {
+    color: "var(--muted)",
+    fontSize: "14px",
+  },
+  paginacaoAcoes: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  paginacaoBotao: {
+    border: "1px solid var(--line)",
+    background: "var(--field-bg)",
+    color: "var(--text)",
+    borderRadius: "8px",
+    padding: "8px 12px",
+    fontSize: "13px",
+    fontWeight: 700,
+  },
+  paginacaoNumero: {
+    color: "var(--primary)",
+    fontWeight: 800,
+    fontSize: "14px",
+    minWidth: "54px",
+    textAlign: "center",
+  },
 };

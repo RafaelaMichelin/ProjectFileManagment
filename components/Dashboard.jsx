@@ -13,8 +13,63 @@ import {
 } from "recharts";
 import { api } from "../services/api";
 import { formatarData } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
-const CORES = ["#93c5fd", "#facc15", "#86efac", "#fca5a5", "#c4b5fd", "#fdba74"];
+const CORES = ["#2f86ff", "#f59e0b", "#10b981", "#ef4444", "#7c3aed", "#fb923c"];
+
+function SvgIcon({ children }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function renderCardIcon(titulo) {
+  if (titulo === "Protocolos") {
+    return (
+      <SvgIcon>
+        <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <path d="M8 13h8" />
+        <path d="M8 16h5" />
+      </SvgIcon>
+    );
+  }
+  if (titulo === "Pendentes") {
+    return (
+      <SvgIcon>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </SvgIcon>
+    );
+  }
+  if (titulo === "Concluidos") {
+    return (
+      <SvgIcon>
+        <circle cx="12" cy="12" r="9" />
+        <path d="m8 12 3 3 5-6" />
+      </SvgIcon>
+    );
+  }
+  return (
+    <SvgIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M8 13h8" />
+      <path d="M8 17h5" />
+    </SvgIcon>
+  );
+}
 
 export default function Dashboard() {
   const [dados, setDados] = useState(null);
@@ -30,19 +85,11 @@ export default function Dashboard() {
   }, []);
 
   if (carregando) {
-    return (
-      <div style={styles.container}>
-        <p style={styles.carregando}>Carregando dashboard...</p>
-      </div>
-    );
+    return <p style={styles.carregando}>Carregando dashboard...</p>;
   }
 
   if (erro) {
-    return (
-      <div style={styles.container}>
-        <p style={styles.erro}>Erro ao carregar dashboard: {erro}</p>
-      </div>
-    );
+    return <p style={styles.erro}>Erro ao carregar dashboard: {erro}</p>;
   }
 
   const cards = [
@@ -50,25 +97,33 @@ export default function Dashboard() {
       titulo: "Documentos",
       valor: dados.cards.documentos,
       descricao: "Total cadastrados",
-      cor: "#93c5fd",
+      cor: "#0b73ff",
+      fundo: "#e8f2ff",
+      icone: "▤",
     },
     {
       titulo: "Protocolos",
       valor: dados.cards.protocolos,
       descricao: "Protocolos criados",
-      cor: "#bfdbfe",
+      cor: "#10b981",
+      fundo: "#dcfce7",
+      icone: "□",
     },
     {
       titulo: "Pendentes",
       valor: dados.cards.pendentes,
-      descricao: "Aguardando análise",
-      cor: "#fde68a",
+      descricao: "Aguardando analise",
+      cor: "#f59e0b",
+      fundo: "#fef3c7",
+      icone: "◷",
     },
     {
-      titulo: "Concluídos",
+      titulo: "Concluidos",
       valor: dados.cards.finalizados,
       descricao: "Finalizados",
-      cor: "#bbf7d0",
+      cor: "#7c3aed",
+      fundo: "#ede9fe",
+      icone: "✓",
     },
   ];
 
@@ -76,53 +131,56 @@ export default function Dashboard() {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.titulo}>Dashboard Geral</h2>
-      <p style={styles.subtitulo}>
-        Visão geral dos documentos, protocolos e movimentações do sistema.
-      </p>
-
       <div style={styles.cardsArea}>
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            style={{ ...styles.card, borderTop: `5px solid ${card.cor}` }}
-          >
-            <p style={styles.cardTitulo}>{card.titulo}</p>
-            <h3 style={styles.cardValor}>{card.valor}</h3>
-            <span style={styles.cardDescricao}>{card.descricao}</span>
+        {cards.map((card) => (
+          <div key={card.titulo} style={styles.card}>
+            <div style={{ ...styles.cardIcon, background: card.fundo, color: card.cor }}>
+              {renderCardIcon(card.titulo)}
+            </div>
+            <div>
+              <p style={styles.cardTitulo}>{card.titulo}</p>
+              <h3 style={styles.cardValor}>{card.valor}</h3>
+              <span style={styles.cardDescricao}>{card.descricao}</span>
+            </div>
           </div>
         ))}
       </div>
 
       <div style={styles.graficosArea}>
         <div style={styles.graficoBox}>
-          <h3 style={styles.graficoTitulo}>Documentos por Tipo</h3>
+          <div style={styles.boxHeader}>
+            <h3 style={styles.graficoTitulo}>Documentos por Tipo</h3>
+            <span style={styles.periodo}>Ultimos 30 dias</span>
+          </div>
           {dados.documentosPorTipo.length === 0 ? (
             <p style={styles.vazio}>Nenhum documento cadastrado.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={dados.documentosPorTipo}>
                 <XAxis dataKey="tipo" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill="#93c5fd" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="quantidade" fill="#2f86ff" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
 
         <div style={styles.graficoBox}>
-          <h3 style={styles.graficoTitulo}>Protocolos por Status</h3>
+          <div style={styles.boxHeader}>
+            <h3 style={styles.graficoTitulo}>Protocolos por Status</h3>
+            <span style={styles.periodo}>Ultimos 30 dias</span>
+          </div>
           {protocolosPorStatus.length === 0 ? (
             <p style={styles.vazio}>Nenhum protocolo cadastrado.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
                   data={protocolosPorStatus}
                   dataKey="value"
                   nameKey="name"
-                  outerRadius={72}
+                  outerRadius={82}
                   label
                 >
                   {protocolosPorStatus.map((_, index) => (
@@ -138,25 +196,27 @@ export default function Dashboard() {
       </div>
 
       <div style={styles.tabelaBox}>
-        <h3 style={styles.graficoTitulo}>Últimos Protocolos</h3>
+        <h3 style={styles.graficoTitulo}>Ultimos Protocolos</h3>
         {dados.ultimosProtocolos.length === 0 ? (
           <p style={styles.vazio}>Nenhum protocolo registrado.</p>
         ) : (
           <table style={styles.tabela}>
             <thead>
               <tr>
-                <th style={styles.th}>Código</th>
-                <th style={styles.th}>Usuário</th>
+                <th style={styles.th}>Protocolo</th>
+                <th style={styles.th}>Usuario</th>
                 <th style={styles.th}>Status</th>
                 <th style={styles.th}>Data</th>
               </tr>
             </thead>
             <tbody>
-              {dados.ultimosProtocolos.map((item, index) => (
+              {dados.ultimosProtocolos.slice(0, TABLE_LIMIT).map((item, index) => (
                 <tr key={index}>
                   <td style={styles.td}>{item.codigo_protocolo}</td>
                   <td style={styles.td}>{item.usuario}</td>
-                  <td style={styles.td}>{item.status}</td>
+                  <td style={styles.td}>
+                    <span style={styles.badge}>{item.status}</span>
+                  </td>
                   <td style={styles.td}>{formatarData(item.data)}</td>
                 </tr>
               ))}
@@ -172,56 +232,122 @@ const styles = {
   container: {
     width: "100%",
     minHeight: "420px",
-    padding: "28px",
-    borderRadius: "16px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "26px",
+  },
+  carregando: {
+    color: "var(--muted)",
+    textAlign: "center",
+    padding: "40px",
     background: "var(--box-bg)",
+    borderRadius: 16,
+    boxShadow: "var(--shadow)",
   },
-  titulo: { margin: 0, fontSize: "28px", color: "var(--text)" },
-  subtitulo: {
-    marginTop: "8px",
-    marginBottom: "24px",
-    color: "var(--text)",
-    opacity: 0.7,
+  erro: {
+    color: "#dc2626",
+    textAlign: "center",
+    padding: "40px",
+    background: "var(--box-bg)",
+    borderRadius: 16,
+    boxShadow: "var(--shadow)",
   },
-  carregando: { color: "var(--text)", opacity: 0.7, textAlign: "center", padding: "40px" },
-  erro: { color: "#dc2626", textAlign: "center", padding: "40px" },
   cardsArea: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-    gap: "16px",
-    marginBottom: "24px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "18px",
   },
   card: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "18px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    minHeight: 138,
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "28px 24px",
+    boxShadow: "var(--shadow)",
+    border: "1px solid var(--line)",
+    display: "grid",
+    gridTemplateColumns: "58px 1fr",
+    alignItems: "center",
+    gap: 18,
+    overflow: "hidden",
   },
-  cardTitulo: { margin: 0, fontSize: "15px", opacity: 0.8, color: "var(--text)" },
-  cardValor: { margin: "10px 0", fontSize: "30px", color: "var(--text)" },
-  cardDescricao: { fontSize: "13px", opacity: 0.7, color: "var(--text)" },
+  cardIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 13,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 26,
+    fontWeight: 800,
+  },
+  cardTitulo: { margin: 0, fontSize: "17px", color: "var(--text)" },
+  cardValor: {
+    margin: "8px 0",
+    fontSize: "34px",
+    color: "var(--text)",
+    lineHeight: 1,
+  },
+  cardDescricao: { fontSize: "14px", color: "var(--muted)" },
+  spark: {
+    alignSelf: "end",
+    fontSize: 52,
+    lineHeight: 1,
+    transform: "rotate(-8deg)",
+  },
   graficosArea: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "20px",
-    marginBottom: "24px",
   },
   graficoBox: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "18px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "24px",
+    boxShadow: "var(--shadow)",
+    border: "1px solid var(--line)",
   },
-  graficoTitulo: { marginTop: 0, marginBottom: "16px", color: "var(--text)" },
+  boxHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  graficoTitulo: { margin: 0, color: "var(--text)", fontSize: 20 },
+  periodo: {
+    border: "1px solid var(--line)",
+    borderRadius: 10,
+    padding: "8px 12px",
+    color: "var(--muted)",
+    fontSize: 13,
+    background: "var(--box-bg)",
+  },
   tabelaBox: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "20px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    overflowX: "auto",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "24px",
+    boxShadow: "var(--shadow)",
+    border: "1px solid var(--line)",
+    overflow: "auto",
+    height: 420,
+    minHeight: 420,
   },
-  tabela: { width: "100%", borderCollapse: "collapse", color: "var(--text)" },
-  th: { textAlign: "left", padding: "12px", borderBottom: "1px solid #ccc" },
-  td: { padding: "12px", borderBottom: "1px solid rgba(180,180,180,0.3)" },
-  vazio: { color: "var(--text)", opacity: 0.7, textAlign: "center" },
+  tabela: { width: "100%", borderCollapse: "collapse", color: "var(--text)", marginTop: 14 },
+  th: { textAlign: "left", padding: "14px 12px", borderBottom: "1px solid var(--line)" },
+  td: {
+    padding: "16px 12px",
+    borderBottom: "1px solid var(--line)",
+    color: "var(--muted)",
+  },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    borderRadius: 9,
+    padding: "6px 12px",
+    background: "var(--primary-soft)",
+    color: "var(--primary)",
+    fontWeight: 700,
+    fontSize: 13,
+  },
+  vazio: { color: "var(--muted)", textAlign: "center" },
 };

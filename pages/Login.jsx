@@ -6,11 +6,46 @@ const STORAGE_KEY = "sced_login_lembrar";
 function carregarLoginSalvo() {
   try {
     const salvo = localStorage.getItem(STORAGE_KEY);
-    if (!salvo) return null;
-    return JSON.parse(salvo);
+    return salvo ? JSON.parse(salvo) : null;
   } catch {
     return null;
   }
+}
+
+function SvgIcon({ children, size = 22 }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function IconMail() {
+  return (
+    <SvgIcon>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </SvgIcon>
+  );
+}
+
+function IconLock() {
+  return (
+    <SvgIcon>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </SvgIcon>
+  );
 }
 
 export default function Login({ onLoginSuccess, onNavigate }) {
@@ -22,10 +57,7 @@ export default function Login({ onLoginSuccess, onNavigate }) {
   useEffect(() => {
     const salvo = carregarLoginSalvo();
     if (salvo) {
-      setForm({
-        email: salvo.email || "",
-        senha: salvo.senha || "",
-      });
+      setForm({ email: salvo.email || "", senha: salvo.senha || "" });
       setLembrar(true);
     }
   }, []);
@@ -41,17 +73,12 @@ export default function Login({ onLoginSuccess, onNavigate }) {
 
     try {
       const data = await api.login(form.email, form.senha);
-
       if (lembrar) {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ email: form.email, senha: form.senha })
-        );
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }
-
-      if (onLoginSuccess) onLoginSuccess(data.usuario);
+      onLoginSuccess?.(data.usuario);
     } catch (error) {
       setErro(error.message);
     } finally {
@@ -61,29 +88,46 @@ export default function Login({ onLoginSuccess, onNavigate }) {
 
   return (
     <section style={styles.container}>
+      <div style={styles.arcTop} />
+      <div style={styles.arcBottom} />
+      <div style={styles.dotsLeft} />
+      <div style={styles.dotsRight} />
+
       <div style={styles.box}>
-        <h2 style={styles.title}>File Managment</h2>
+        <img src="/fm-logo.png" alt="File Management" style={styles.logoImage} />
+        <h2 style={styles.title}>File Management</h2>
+        <p style={styles.subtitle}>Acesse sua conta para continuar</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+          <label style={styles.inputWrap}>
+            <span style={styles.inputIcon}>
+              <IconMail />
+            </span>
+            <input
+              type="email"
+              name="email"
+              placeholder="E-mail"
+              value={form.email}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </label>
 
-          <input
-            type="password"
-            name="senha"
-            placeholder="Senha"
-            value={form.senha}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+          <label style={styles.inputWrap}>
+            <span style={styles.inputIcon}>
+              <IconLock />
+            </span>
+            <input
+              type="password"
+              name="senha"
+              placeholder="Senha"
+              value={form.senha}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </label>
 
           {erro && <p style={styles.erro}>{erro}</p>}
 
@@ -99,7 +143,7 @@ export default function Login({ onLoginSuccess, onNavigate }) {
 
           <button
             type="button"
-            onClick={() => onNavigate && onNavigate("forgot-password")}
+            onClick={() => onNavigate?.("forgot-password")}
             style={styles.forgot}
           >
             Esqueci minha senha
@@ -109,9 +153,15 @@ export default function Login({ onLoginSuccess, onNavigate }) {
             {carregando ? "ENTRANDO..." : "ENTRAR"}
           </button>
 
+          <div style={styles.divider}>
+            <span style={styles.line} />
+            <span>ou</span>
+            <span style={styles.line} />
+          </div>
+
           <button
             type="button"
-            onClick={() => onNavigate && onNavigate("register")}
+            onClick={() => onNavigate?.("register")}
             style={styles.register}
           >
             Cadastrar-se
@@ -122,99 +172,175 @@ export default function Login({ onLoginSuccess, onNavigate }) {
   );
 }
 
+const dotPattern =
+  "radial-gradient(circle, rgba(11,115,255,0.16) 0 3px, transparent 4px)";
+
 const styles = {
   container: {
+    position: "relative",
     minHeight: "100vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#d9d9d9",
+    overflow: "hidden",
+    background: "linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%)",
     padding: "24px",
   },
+  arcTop: {
+    position: "absolute",
+    top: -180,
+    right: -130,
+    width: 440,
+    height: 440,
+    borderRadius: "50%",
+    background: "rgba(78, 151, 255, 0.1)",
+  },
+  arcBottom: {
+    position: "absolute",
+    left: -180,
+    bottom: -230,
+    width: 520,
+    height: 520,
+    borderRadius: "50%",
+    border: "80px solid rgba(78, 151, 255, 0.09)",
+  },
+  dotsLeft: {
+    position: "absolute",
+    top: 28,
+    left: 30,
+    width: 150,
+    height: 210,
+    backgroundImage: dotPattern,
+    backgroundSize: "26px 26px",
+  },
+  dotsRight: {
+    position: "absolute",
+    right: 60,
+    bottom: 70,
+    width: 150,
+    height: 140,
+    backgroundImage: dotPattern,
+    backgroundSize: "26px 26px",
+  },
   box: {
-    width: 250,
-    minHeight: 360,
-    padding: "34px 18px 20px",
+    position: "relative",
+    zIndex: 1,
+    width: "min(100%, 500px)",
+    padding: "48px 38px 40px",
     borderRadius: 26,
-    background: "#fff",
-    boxShadow: "0 10px 18px rgba(0,0,0,0.18)",
+    background: "rgba(255,255,255,0.98)",
+    border: "1px solid rgba(217,230,245,0.9)",
+    boxShadow: "0 28px 80px rgba(23,58,105,0.15)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
+  logoImage: {
+    width: 132,
+    height: 132,
+    objectFit: "contain",
+    marginBottom: 10,
+    filter: "drop-shadow(0 16px 26px rgba(11,115,255,0.18))",
+  },
   title: {
-    margin: "22px 0 28px",
-    color: "#9fd2f3",
-    fontFamily: "Inter, sans-serif",
-    fontWeight: 400,
-    fontSize: "21px",
+    margin: 0,
+    color: "#0b73ff",
+    fontWeight: 800,
+    fontSize: 32,
     textAlign: "center",
+  },
+  subtitle: {
+    margin: "8px 0 28px",
+    color: "#63718d",
+    fontSize: 16,
   },
   form: {
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 16,
+  },
+  inputWrap: {
+    height: 58,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    border: "1px solid #bfd6f5",
+    borderRadius: 10,
+    background: "#fff",
+    padding: "0 18px",
+  },
+  inputIcon: {
+    color: "#0b73ff",
+    display: "inline-flex",
   },
   input: {
     width: "100%",
-    height: 34,
-    padding: "0 10px",
-    borderRadius: 8,
-    border: "1px solid #666",
-    outline: "none",
-    fontFamily: "Inter, sans-serif",
-    fontSize: 14,
-    boxSizing: "border-box",
+    border: 0,
+    outline: 0,
+    color: "#071733",
+    fontSize: 16,
+    background: "transparent",
   },
   erro: {
     margin: 0,
-    color: "#c0392b",
-    fontSize: 12,
+    color: "#dc2626",
+    fontSize: 13,
     textAlign: "center",
   },
   checkboxRow: {
     display: "flex",
     alignItems: "center",
-    gap: 6,
-    fontSize: 12,
-    color: "#333",
-    marginTop: 2,
+    gap: 10,
+    fontSize: 15,
+    color: "#516586",
   },
   checkbox: {
-    width: 14,
-    height: 14,
+    width: 20,
+    height: 20,
+    accentColor: "#0b73ff",
   },
   forgot: {
+    alignSelf: "flex-start",
     background: "none",
     border: "none",
     padding: 0,
-    textAlign: "left",
-    color: "#9fd2f3",
-    fontSize: 12,
+    color: "#0b73ff",
+    fontSize: 15,
     cursor: "pointer",
-    marginTop: -2,
   },
   primary: {
     marginTop: 10,
     width: "100%",
-    height: 36,
+    height: 58,
     border: "none",
-    borderRadius: 8,
-    background: "#7fc1f5",
+    borderRadius: 10,
+    background: "linear-gradient(135deg, #0b73ff 0%, #2f86ff 100%)",
     color: "#fff",
-    fontWeight: 700,
-    letterSpacing: 0.5,
+    fontWeight: 800,
+    fontSize: 18,
     cursor: "pointer",
-    boxShadow: "0 4px 10px rgba(127,193,245,0.35)",
+    boxShadow: "0 14px 28px rgba(11,115,255,0.28)",
+  },
+  divider: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto 1fr",
+    alignItems: "center",
+    gap: 18,
+    color: "#8090aa",
+    fontSize: 14,
+    marginTop: 8,
+  },
+  line: {
+    height: 1,
+    background: "#d9e6f5",
   },
   register: {
     background: "none",
     border: "none",
     padding: 0,
-    marginTop: 2,
-    color: "#9fd2f3",
-    fontSize: 12,
+    color: "#0b73ff",
+    fontSize: 18,
     cursor: "pointer",
   },
 };

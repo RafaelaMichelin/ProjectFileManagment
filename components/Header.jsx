@@ -1,54 +1,45 @@
 import { useTheme } from "../context/ThemeContext";
 
-function IconProfile() {
+function SvgIcon({ children, size = 22 }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="22"
-      height="22"
+      width={size}
+      height={size}
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
+      {children}
+    </svg>
+  );
+}
+
+function IconProfile() {
+  return (
+    <SvgIcon>
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
-    </svg>
+    </SvgIcon>
   );
 }
 
 function IconLogout() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="22"
-      height="22"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <SvgIcon>
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
+    </SvgIcon>
   );
 }
 
 function IconSun() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <SvgIcon size={20}>
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -58,29 +49,30 @@ function IconSun() {
       <line x1="21" y1="12" x2="23" y2="12" />
       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
+    </SvgIcon>
   );
 }
 
 function IconMoon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <SvgIcon size={20}>
       <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
-    </svg>
+    </SvgIcon>
   );
 }
 
+const subtitles = {
+  Documentos: "Envie, acompanhe e corrija documentos do sistema.",
+  Protocolos: "Acompanhe o andamento dos seus envios.",
+  "RelatÃ³rios": "Analise os indicadores e registros do sistema.",
+  Logs: "Acompanhamento das acoes realizadas pelos usuarios.",
+  "UsuÃ¡rios": "Gerencie usuarios, operadores e administradores.",
+  Perfil: "Gerencie suas informacoes pessoais e senha de acesso.",
+};
+
 export default function Header({
-  currentPage = "Início",
+  currentPage = "InÃ­cio",
+  usuario,
   onSelectPage = () => {},
   onLogout = () => {},
 }) {
@@ -88,21 +80,25 @@ export default function Header({
 
   const handleLogout = () => {
     const confirmed = window.confirm("Deseja sair?");
-    if (confirmed) {
-      onLogout();
-    }
+    if (confirmed) onLogout();
   };
 
-  return (
-    <header style={styles.header}>
-      <h1 style={styles.title}>{currentPage}</h1>
+  const isHome = currentPage === "InÃ­cio";
+  const nome = usuario?.nome_completo?.split(" ")[0] || "Admin";
 
-      <div style={styles.iconArea}>
-        <button
-          onClick={toggleTheme}
-          style={styles.iconButton}
-          aria-label="Alternar tema"
-        >
+  return (
+    <header className="app-header" style={styles.header}>
+      <div>
+        <h1 style={styles.title}>{isHome ? `Ola, ${nome}!` : currentPage}</h1>
+        <p style={styles.subtitle}>
+          {isHome
+            ? "Bem-vindo ao sistema de gerenciamento de arquivos"
+            : subtitles[currentPage] || "Gerencie as informacoes desta area."}
+        </p>
+      </div>
+
+      <div className="app-header-actions" style={styles.iconArea}>
+        <button onClick={toggleTheme} style={styles.iconButton} aria-label="Alternar tema">
           {theme === "light" ? <IconMoon /> : <IconSun />}
         </button>
         <button
@@ -112,11 +108,7 @@ export default function Header({
         >
           <IconProfile />
         </button>
-        <button
-          onClick={handleLogout}
-          style={styles.iconButton}
-          aria-label="Sair"
-        >
+        <button onClick={handleLogout} style={styles.iconButton} aria-label="Sair">
           <IconLogout />
         </button>
       </div>
@@ -126,33 +118,42 @@ export default function Header({
 
 const styles = {
   header: {
-    paddingBottom: 20,
-    marginBottom: 20,
-    borderBottom: "1px solid var(--box-bg)",
+    padding: "18px 0 28px",
+    marginBottom: 6,
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
+    gap: 16,
   },
   title: {
-    fontSize: "22px",
+    margin: 0,
+    fontSize: "28px",
+    lineHeight: 1.1,
+    fontWeight: 800,
     color: "var(--text)",
+  },
+  subtitle: {
+    margin: "10px 0 0",
+    color: "var(--muted)",
+    fontSize: 16,
   },
   iconArea: {
     display: "flex",
-    gap: "16px",
+    gap: "14px",
     alignItems: "center",
   },
   iconButton: {
-    width: "36px",
-    height: "36px",
-    padding: "6px",
+    width: "54px",
+    height: "54px",
+    padding: 0,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    background: "transparent",
-    border: "1px solid rgba(0,0,0,0.1)",
-    borderRadius: "10px",
+    background: "var(--box-bg)",
+    border: "1px solid var(--line)",
+    borderRadius: "12px",
     color: "var(--text)",
+    boxShadow: "var(--shadow-soft)",
   },
 };

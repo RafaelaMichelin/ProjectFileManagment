@@ -32,21 +32,21 @@ export default function App({ usuario, onLogout, onUsuarioUpdate }) {
 
   return (
     <ThemeProvider>
-      <div style={styles.container}>
+      <div className="app-shell" style={styles.container}>
         <Sidebar
           selectedPage={selectedPage}
           onSelectPage={setSelectedPage}
           usuario={usuario}
         />
 
-        <main style={styles.main}>
+        <main className="app-main" style={styles.main}>
           <Header
             currentPage={selectedPage}
             usuario={usuario}
             onSelectPage={setSelectedPage}
             onLogout={onLogout}
           />
-          {pages[selectedPage] || <Dashboard />}
+          <div className="app-content">{pages[selectedPage] || <Dashboard />}</div>
         </main>
       </div>
     </ThemeProvider>
@@ -56,16 +56,18 @@ export default function App({ usuario, onLogout, onUsuarioUpdate }) {
 const styles = {
   container: {
     display: "flex",
-    flexWrap: "wrap",
     minHeight: "100vh",
     width: "100%",
-    background: "var(--bg)",
+    background: "var(--app-bg)",
   },
   main: {
     flex: "1 1 0",
     minWidth: 0,
-    padding: "28px",
-    background: "var(--bg)",
-    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
+    padding: "18px 32px 36px",
+    background: "var(--app-bg)",
+    height: "100vh",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
   },
 };
