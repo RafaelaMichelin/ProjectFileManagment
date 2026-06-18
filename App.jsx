@@ -1,0 +1,71 @@
+import { useEffect, useState } from "react";
+import Sidebar from "./components/Sidebar";
+import { podeAcessarPagina } from "./utils/permissions";
+import Header from "./components/Header";
+import Dashboard from "./components/Dashboard";
+import Documentos from "./pages/Documentos";
+import Protocolos from "./pages/Protocolos";
+import Relatorios from "./pages/Relatorios";
+import Logs from "./pages/Logs";
+import Usuarios from "./pages/Usuarios";
+import Perfil from "./pages/Perfil";
+import { ThemeProvider } from "./context/ThemeContext";
+
+export default function App({ usuario, onLogout, onUsuarioUpdate }) {
+  const [selectedPage, setSelectedPage] = useState("Início");
+
+  useEffect(() => {
+    if (!podeAcessarPagina(usuario?.tipo_usuario, selectedPage)) {
+      setSelectedPage("Início");
+    }
+  }, [usuario?.tipo_usuario, selectedPage]);
+
+  const pages = {
+    Início: <Dashboard />,
+    Documentos: <Documentos usuario={usuario} />,
+    Protocolos: <Protocolos usuario={usuario} />,
+    Relatórios: <Relatorios />,
+    Logs: <Logs />,
+    Usuários: <Usuarios usuario={usuario} />,
+    Perfil: <Perfil usuario={usuario} onUsuarioUpdate={onUsuarioUpdate} />,
+  };
+
+  return (
+    <ThemeProvider>
+      <div style={styles.container}>
+        <Sidebar
+          selectedPage={selectedPage}
+          onSelectPage={setSelectedPage}
+          usuario={usuario}
+        />
+
+        <main style={styles.main}>
+          <Header
+            currentPage={selectedPage}
+            usuario={usuario}
+            onSelectPage={setSelectedPage}
+            onLogout={onLogout}
+          />
+          {pages[selectedPage] || <Dashboard />}
+        </main>
+      </div>
+    </ThemeProvider>
+  );
+}
+
+const styles = {
+  container: {
+    display: "flex",
+    flexWrap: "wrap",
+    minHeight: "100vh",
+    width: "100%",
+    background: "var(--bg)",
+  },
+  main: {
+    flex: "1 1 0",
+    minWidth: 0,
+    padding: "28px",
+    background: "var(--bg)",
+    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
+  },
+};
