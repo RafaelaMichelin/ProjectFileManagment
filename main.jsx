@@ -5,6 +5,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+
+
+
 
 function Root() {
 	const [view, setView] = useState("login");
@@ -34,11 +38,15 @@ function Root() {
 				/>
 			) : view === "register" ? (
 				<Cadastro onRegistered={() => setView("login")} onCancel={() => setView("login")} />
+
+			) : view === "forgot-password" ? (
+				<ForgotPassword onNavigate={setView} />
 			) : (
 				<Login onLoginSuccess={handleLoginSuccess} onNavigate={setView} />
 			)}
 		</>
 	);
 }
+
 
 ReactDOM.createRoot(document.getElementById("app")).render(<Root />);
