@@ -4,6 +4,7 @@ import IconButton, { IconEditar, IconExcluir, IconDownload } from "../components
 import { pageStyles as s } from "../components/pageStyles";
 import { api } from "../services/api";
 import { formatarData } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
 const DOC_VAZIO = {
   arquivo: null,
@@ -327,7 +328,7 @@ export default function Documentos({ usuario }) {
                 </tr>
               </thead>
               <tbody>
-                {filtrados.map((item) => (
+                {filtrados.slice(0, TABLE_LIMIT).map((item) => (
                   <tr key={item.id_documento}>
                     <td style={s.td}>{item.codigo_protocolo}</td>
                     <td style={s.td}>
@@ -411,7 +412,8 @@ export default function Documentos({ usuario }) {
               <p style={s.sucesso}>{sucesso}</p>
               <div
                 style={{
-                  background: "var(--bg)",
+                  background: "var(--field-bg)",
+                  border: "1px solid var(--line)",
                   borderRadius: "12px",
                   padding: "16px",
                   marginBottom: "16px",
@@ -456,7 +458,8 @@ export default function Documentos({ usuario }) {
                 <div
                   key={index}
                   style={{
-                    background: "var(--bg)",
+                    background: "var(--field-bg)",
+                    border: "1px solid var(--line)",
                     borderRadius: "12px",
                     padding: "14px",
                     marginBottom: "12px",

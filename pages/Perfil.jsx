@@ -224,13 +224,13 @@ const styles = {
     alignItems: "start",
   },
   infoCard: {
-    background: "var(--bg)",
+    background: "var(--box-bg)",
     borderRadius: "14px",
     padding: "24px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
   },
   formCard: {
-    background: "var(--bg)",
+    background: "var(--box-bg)",
     borderRadius: "14px",
     padding: "24px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",

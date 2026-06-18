@@ -4,6 +4,7 @@ import IconButton, { IconVer, IconEditar, IconExcluir } from "../components/Icon
 import { pageStyles as s } from "../components/pageStyles";
 import { api } from "../services/api";
 import { formatarData } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
 const TIPOS_USUARIO = ["ADMIN", "OPERADOR", "USUARIO"];
 
@@ -252,7 +253,7 @@ export default function Usuarios({ usuario }) {
                 </tr>
               </thead>
               <tbody>
-                {filtrados.map((item) => (
+                {filtrados.slice(0, TABLE_LIMIT).map((item) => (
                   <tr key={item.id_usuario}>
                     <td style={s.td}>{item.nome_completo}</td>
                     <td style={s.td}>{item.email}</td>

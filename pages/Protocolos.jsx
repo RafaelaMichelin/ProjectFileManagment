@@ -9,6 +9,7 @@ import IconButton, {
 import { pageStyles as s } from "../components/pageStyles";
 import { api } from "../services/api";
 import { formatarData } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
 function statusBadgeStyle(status) {
   const cores = {
@@ -220,7 +221,7 @@ export default function Protocolos({ usuario }) {
                 </tr>
               </thead>
               <tbody>
-                {filtrados.map((item) => (
+                {filtrados.slice(0, TABLE_LIMIT).map((item) => (
                   <tr key={item.id_protocolo}>
                     <td style={s.td}>{item.codigo_protocolo}</td>
                     {!isUsuario && <td style={s.td}>{item.nome_usuario}</td>}
@@ -378,7 +379,7 @@ export default function Protocolos({ usuario }) {
                 </tr>
               </thead>
               <tbody>
-                {documentos.map((d) => (
+                {documentos.slice(0, TABLE_LIMIT).map((d) => (
                   <tr key={d.id_documento}>
                     <td style={s.td}>
                       {d.caminho_arquivo ? (
@@ -439,7 +440,7 @@ export default function Protocolos({ usuario }) {
                 </tr>
               </thead>
               <tbody>
-                {historico.map((h) => (
+                {historico.slice(0, TABLE_LIMIT).map((h) => (
                   <tr key={h.id_movimentacao}>
                     <td style={s.td}>{h.status_anterior || "-"}</td>
                     <td style={s.td}>{h.status_novo}</td>

@@ -10,6 +10,7 @@ import {
 import { pageStyles as s } from "../components/pageStyles";
 import { api } from "../services/api";
 import { formatarData } from "../utils/date";
+import { TABLE_LIMIT } from "../utils/table";
 
 const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
@@ -212,7 +213,7 @@ export default function Relatorios() {
                 </tr>
               </thead>
               <tbody>
-                {dadosFiltrados.map((item, index) => (
+                {dadosFiltrados.slice(0, TABLE_LIMIT).map((item, index) => (
                   <tr key={index}>
                     <td style={s.td}>{item.codigo}</td>
                     <td style={s.td}>{item.tipo}</td>
@@ -249,30 +250,33 @@ const styles = {
     marginBottom: "22px",
   },
   card: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "16px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "18px",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
   },
   cardTitulo: { margin: 0, fontSize: "15px", opacity: 0.8, color: "var(--text)" },
   cardValor: { margin: "10px 0", fontSize: "30px", color: "var(--text)" },
   cardDetalhe: { fontSize: "13px", opacity: 0.7, color: "var(--text)" },
   graficoBox: {
-    background: "var(--bg)",
-    borderRadius: "14px",
-    padding: "18px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    background: "var(--box-bg)",
+    borderRadius: "16px",
+    padding: "20px",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
     marginBottom: "18px",
   },
   graficoTitulo: { marginTop: 0, marginBottom: "16px", color: "var(--text)" },
   resumoFiltros: {
-    background: "var(--bg)",
+    background: "var(--box-bg)",
     color: "var(--text)",
     borderRadius: "12px",
     padding: "14px 16px",
     marginBottom: "18px",
     fontSize: "14px",
     opacity: 0.9,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    border: "1px solid var(--line)",
+    boxShadow: "var(--shadow-soft)",
   },
 };

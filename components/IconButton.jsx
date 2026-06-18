@@ -72,12 +72,12 @@ export function IconReenviar() {
 
 const variantStyles = {
   default: {
-    background: "var(--bg)",
-    color: "var(--text)",
-    border: "1px solid #cbd5e1",
+    background: "var(--box-bg)",
+    color: "var(--primary)",
+    border: "1px solid #cfe0f5",
   },
   primary: {
-    background: "#7fc1f5",
+    background: "linear-gradient(135deg, var(--primary) 0%, #2f86ff 100%)",
     color: "#fff",
     border: "none",
   },
@@ -109,9 +109,10 @@ export default function IconButton({ title, onClick, variant = "default", childr
         width: 34,
         height: 34,
         padding: 0,
-        borderRadius: "8px",
+        borderRadius: "9px",
         cursor: "pointer",
-        transition: "opacity 0.15s, transform 0.1s",
+        transition: "opacity 0.15s, transform 0.1s, box-shadow 0.15s",
+        boxShadow: "0 6px 14px rgba(23, 58, 105, 0.08)",
         ...estilo,
       }}
       onMouseEnter={(e) => {

@@ -37,8 +37,12 @@ export default function Cadastro({ onRegistered, onCancel }) {
 
   return (
     <section style={styles.container}>
+      <div style={styles.arcTop} />
+      <div style={styles.arcBottom} />
       <div style={styles.box}>
-        <h2 style={styles.title}>File Managment</h2>
+        <img src="/fm-logo.png" alt="File Management" style={styles.logoImage} />
+        <h2 style={styles.title}>File Management</h2>
+        <p style={styles.subtitle}>Crie sua conta para continuar</p>
         <form onSubmit={handleSubmit} style={styles.form}>
           <label>
             <input
@@ -110,47 +114,80 @@ export default function Cadastro({ onRegistered, onCancel }) {
 
 const styles = {
   container: {
+    position: "relative",
     minHeight: "100vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#d9d9d9",
+    overflow: "hidden",
+    background: "linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%)",
     padding: "24px",
   },
+  arcTop: {
+    position: "absolute",
+    top: -180,
+    right: -130,
+    width: 440,
+    height: 440,
+    borderRadius: "50%",
+    background: "rgba(78, 151, 255, 0.1)",
+  },
+  arcBottom: {
+    position: "absolute",
+    left: -180,
+    bottom: -230,
+    width: 520,
+    height: 520,
+    borderRadius: "50%",
+    border: "80px solid rgba(78, 151, 255, 0.09)",
+  },
   box: {
-    width: 250,
-    minHeight: 360,
-    padding: "34px 18px 20px",
+    position: "relative",
+    zIndex: 1,
+    width: "min(100%, 500px)",
+    padding: "44px 38px 36px",
     borderRadius: 26,
-    background: "#fff",
-    boxShadow: "0 10px 18px rgba(0,0,0,0.18)",
+    background: "rgba(255,255,255,0.98)",
+    border: "1px solid rgba(217,230,245,0.9)",
+    boxShadow: "0 28px 80px rgba(23,58,105,0.15)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
+  logoImage: {
+    width: 124,
+    height: 124,
+    objectFit: "contain",
+    marginBottom: 10,
+    filter: "drop-shadow(0 16px 26px rgba(11,115,255,0.18))",
+  },
   title: {
-    margin: "22px 0 28px",
-    color: "#9fd2f3",
-    fontFamily: "Inter, sans-serif",
-    fontWeight: 400,
-    fontSize: "21px",
+    margin: 0,
+    color: "#0b73ff",
+    fontWeight: 800,
+    fontSize: 32,
     textAlign: "center",
+  },
+  subtitle: {
+    margin: "8px 0 28px",
+    color: "#63718d",
+    fontSize: 16,
   },
   form: {
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 14,
   },
   input: {
     width: "100%",
-    height: 34,
-    padding: "0 10px",
-    borderRadius: 8,
-    border: "1px solid #666",
+    height: 54,
+    padding: "0 16px",
+    borderRadius: 10,
+    border: "1px solid #bfd6f5",
     outline: "none",
     fontFamily: "Inter, sans-serif",
-    fontSize: 14,
+    fontSize: 16,
     boxSizing: "border-box",
   },
   erro: {
@@ -168,10 +205,10 @@ const styles = {
   primary: {
     marginTop: 10,
     width: "100%",
-    height: 36,
+    height: 52,
     border: "none",
-    borderRadius: 8,
-    background: "#7fc1f5",
+    borderRadius: 10,
+    background: "linear-gradient(135deg, #0b73ff 0%, #2f86ff 100%)",
     color: "#fff",
     fontWeight: 700,
     letterSpacing: 0.5,
@@ -181,12 +218,12 @@ const styles = {
   secundary: {
     marginTop: 10,
     width: "100%",
-    height: 36,
-    border: "none",
-    borderRadius: 8,
-    background: "#fcfeff",
-    color: "#080808",
-    fontWeight: 500,
+    height: 52,
+    border: "1px solid #bfd6f5",
+    borderRadius: 10,
+    background: "#fff",
+    color: "#0b73ff",
+    fontWeight: 700,
     letterSpacing: 0.5,
     cursor: "pointer",
     boxShadow: "0 4px 10px rgba(127,193,245,0.35)",
